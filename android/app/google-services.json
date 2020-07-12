@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "854554256459",
+    "firebase_url": "https://todos-bcc17.firebaseio.com",
+    "project_id": "todos-bcc17",
+    "storage_bucket": "todos-bcc17.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:854554256459:android:7e6d4061b12ec42e2519ce",
+        "android_client_info": {
+          "package_name": "com.example.tasker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "854554256459-7i1fknbgle937kmp2qocscfh85msh134.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tasker",
+            "certificate_hash": "ce1a64e8b287e044f395f3d70510a265ff243f7a"
+          }
+        },
+        {
+          "client_id": "854554256459-uh51bjcg6r1sjsr0fn20lpv4md9t596r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGFUOm5djNUzrMi9TvBx8zb5VxI_0Syzc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "854554256459-uh51bjcg6r1sjsr0fn20lpv4md9t596r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,7 @@
 import 'package:calendar_strip/calendar_strip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tasker/Utils/constants.dart';
@@ -10,6 +11,7 @@ import 'package:tasker/services/auth.dart';
 DateTime selectedDate = DateTime.now();
 final _firestore = Firestore.instance;
 final _auth = FirebaseAuth.instance;
+FirebaseMessaging fcm = FirebaseMessaging();
 
 Authentication authentication = Authentication();
 
@@ -26,6 +28,50 @@ class TaskListPage extends StatefulWidget {
 }
 
 class _TaskListPageState extends State<TaskListPage> {
+  @override
+  void initState() {
+    fcm.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        String title = message["notification"]["title"] ?? "";
+        String body = message["notification"]["body"] ?? "";
+        showdialog(title, body);
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        String title = message["notification"]["title"] ?? "";
+        String body = message["notification"]["body"] ?? "";
+        showdialog(title, body);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        String title = message["notification"]["title"] ?? "";
+        String body = message["notification"]["body"] ?? "";
+        showdialog(title, body);
+      },
+    );
+    super.initState();
+  }
+
+  void showdialog(String title, String body) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(body),
+            actions: <Widget>[
+              RaisedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Close"),
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,7 +157,7 @@ Stream<QuerySnapshot> taskstream() async* {
   FirebaseUser currentUser = user;
   print(currentUser.uid);
   yield* _firestore
-      .collection('Task Management')
+      .collection('Task_Management')
       .document(currentUser.uid)
       .collection('Tasks')
       .orderBy('Priority', descending: true)
