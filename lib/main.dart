@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tasker/Pages/addTask.dart';
 import 'package:tasker/Pages/home.dart';
+import 'package:tasker/Pages/project_dashboard.dart';
 import 'package:tasker/Pages/sign_in.dart';
 import 'package:tasker/Pages/taskList.dart';
 import 'package:tasker/Utils/Constants.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         "/AddTask": (context) => AddTaskPage(),
         "/signin": (context) => SignInPage(),
         "/initialroute": (context) => LoginorHome(),
+        "/projecthome": (context) => ProjectHome(),
       },
     );
   }

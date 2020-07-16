@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tasker/Utils/Constants.dart';
+import 'package:tasker/Utils/drawer.dart';
 import 'package:tasker/Widgets/card.dart';
 import 'package:tasker/Widgets/taskcard.dart';
 import 'package:tasker/services/auth.dart';
@@ -77,99 +78,119 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var screenHeight = MediaQuery.of(context).size.height;
-    return SafeArea(
-      child: Scaffold(
-          appBar: AppBar(
-            actions: <Widget>[
-              FlatButton(
-                onPressed: () {
-                  Authentication().signOut();
-                },
-                child: Text('Logout'),
-              )
-            ],
-          ),
-          body: StreamBuilder(
-              stream: userstream(),
-              builder: (context, snapshots) {
-                if (!snapshots.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                return Padding(
-                  padding: const EdgeInsets.all(36.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return StreamBuilder(
+        stream: userstream(),
+        builder: (context, snapshots) {
+          if (!snapshots.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+          DocumentSnapshot documentUserSnapshot = snapshots.data.documents[0];
+          return SafeArea(
+              child: Scaffold(
+                  appBar: AppBar(
+                    actions: <Widget>[
+                      FlatButton(
+                        onPressed: () {
+                          Authentication().signOut();
+                        },
+                        child: Text('Logout'),
+                      )
+                    ],
+                  ),
+                  drawer: CustomDrawer(
+                    onTapLogout: () {
+                      authentication.signOut();
+                      Navigator.pushReplacementNamed(context, "/signIn");
+                    },
+                    accountName: Text(documentUserSnapshot['DisplayName']),
+                    accountEmail: Text(documentUserSnapshot['Email']),
+                    accountPicture: CircleAvatar(
+                      minRadius: 25,
+                      maxRadius: 30,
+                      backgroundImage:
+                          NetworkImage(documentUserSnapshot["PhotoUrl"]),
+                    ),
+                    accountid: documentUserSnapshot['UserId'],
+                  ),
+                  body: ListView(children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(36.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
                               SizedBox(height: screenHeight * 0.05),
                               Text(
-                                "Hello",
+                                "Hi",
                                 style: kHeading1,
                               ),
+                              SizedBox(
+                                width: 10,
+                              ),
                               Text(
-                                snapshots.data.documents[0].data['DisplayName'],
-                                style: kHeading2,
+                                '${snapshots.data.documents[0].data['DisplayName']}!',
+                                style: kHeading1,
                               ),
                             ],
                           ),
-                          CircleAvatar(
-                            minRadius: 30,
-                            maxRadius: 40,
-                            backgroundImage: NetworkImage(
-                                snapshots.data.documents[0].data['PhotoUrl']),
-                          )
+                          SizedBox(height: screenHeight * 0.05),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              ContainerCard(
+                                onTap: () {
+                                  Navigator.pushNamed(context, "/TaskList");
+                                },
+                                child: Text("Personal"),
+                                color: Colors.red[200],
+                                height: 150,
+                              ),
+                              ContainerCard(
+                                onTap: () {
+                                  Navigator.pushNamed(context, "/projecthome");
+                                },
+                                child: Text("Projects"),
+                                color: Colors.red[200],
+                                height: 150,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: screenHeight * 0.05),
+                          Text(
+                            "Today's Tasks",
+                            style: kHeading2,
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          StreamBuilder(
+                              stream: todaystream(),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                }
+                                return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: snapshot.data.documents.length,
+                                    itemBuilder: (context, index) {
+                                      documentSnapshot =
+                                          snapshot.data.documents[index];
+                                      return TaskCard(
+                                        task: documentSnapshot['task'],
+                                        timestamp:
+                                            documentSnapshot['timestamp'],
+                                        taskCompleted:
+                                            documentSnapshot['CompletedStatus'],
+                                        dueDate: documentSnapshot['DueDate'],
+                                        priority: documentSnapshot['Priority'],
+                                      );
+                                    });
+                              }),
                         ],
                       ),
-                      SizedBox(height: screenHeight * 0.05),
-                      ContainerCard(
-                        onTap: () {
-                          Navigator.pushNamed(context, "/TaskList");
-                        },
-                        child: Text("Personal"),
-                        color: Colors.red[200],
-                        height: 150,
-                      ),
-                      SizedBox(height: screenHeight * 0.05),
-                      Text(
-                        "Today's Tasks",
-                        style: kHeading2,
-                      ),
-                      SizedBox(height: screenHeight * 0.02),
-                      Expanded(
-                        child: StreamBuilder(
-                            stream: todaystream(),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              return ListView.builder(
-                                  itemCount: snapshot.data.documents.length,
-                                  itemBuilder: (context, index) {
-                                    documentSnapshot =
-                                        snapshot.data.documents[index];
-                                    return TaskCard(
-                                      task: documentSnapshot['task'],
-                                      timestamp: documentSnapshot['timestamp'],
-                                      taskCompleted:
-                                          documentSnapshot['CompletedStatus'],
-                                      dueDate: documentSnapshot['DueDate'],
-                                      priority: documentSnapshot['Priority'],
-                                    );
-                                  });
-                            }),
-                      ),
-                    ],
-                  ),
-                );
-              })),
-    );
+                    ),
+                  ])));
+        });
   }
 
   Stream<QuerySnapshot> todaystream() async* {
