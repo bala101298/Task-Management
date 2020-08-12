@@ -35,3 +35,9 @@ const kHomepageBackground = BoxDecoration(
     ],
   ),
 );
+
+const kHeadingTextStyle = TextStyle(
+  fontWeight: FontWeight.bold,
+  fontSize: 20,
+  color: Colors.black,
+);

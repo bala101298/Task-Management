@@ -43,14 +43,15 @@ class _TaskCardState extends State<TaskCard> {
                     taskcompleted: widget.taskCompleted),
               ),
               GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  final user = await FirebaseAuth.instance.currentUser();
                   setState(() {
                     if (widget.taskCompleted == false) {
                       widget.taskCompleted = true;
                     } else {
                       widget.taskCompleted = false;
                     }
-                    Database(uid: authentication.userUid()).addTask(
+                    Database(uid: user.uid).addTask(
                         timestamp: widget.timestamp,
                         taskCompleted: widget.taskCompleted,
                         input: widget.task,
@@ -82,6 +83,7 @@ class _TaskCardState extends State<TaskCard> {
                 flex: 50,
                 child: Text(
                   widget.task,
+                  maxLines: null,
                   style: TextStyle(
                       color: widget.taskCompleted == false
                           ? Colors.black

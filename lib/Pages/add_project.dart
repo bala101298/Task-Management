@@ -18,6 +18,7 @@ List members = List();
 bool userselected = false;
 bool showcontacts = false;
 bool membersselected = false;
+bool checked = false;
 
 class AddProjectPage extends StatefulWidget {
   @override
@@ -33,6 +34,7 @@ class _AddProjectPageState extends State<AddProjectPage> {
       lastDate: DateTime(2100),
     );
     if (dateTime != null) {
+      print(dateTime);
       setState(() {
         formatedDate = new DateFormat.yMMMEd().format(dateTime);
       });
@@ -43,12 +45,17 @@ class _AddProjectPageState extends State<AddProjectPage> {
   void initState() {
     setState(() {
       showcontacts = false;
+      startdate = null;
+      enddate = null;
     });
+    members.clear();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    var screenHeight = MediaQuery.of(context).size.height;
+    var screenwidth = MediaQuery.of(context).size.width;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -105,9 +112,6 @@ class _AddProjectPageState extends State<AddProjectPage> {
                   setState(() {
                     showcontacts = true;
                   });
-                  /*await friendstream().then((value) {
-                    snapshot = value;
-                  });*/
                 },
                 color: Colors.greenAccent,
                 shape: RoundedRectangleBorder(
@@ -127,28 +131,47 @@ class _AddProjectPageState extends State<AddProjectPage> {
                             itemCount: snapshots.data.documents.length,
                             itemBuilder: (context, index) {
                               return Card(
-                                borderOnForeground: true,
-                                elevation: 0,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    members.add(snapshots.data.documents[index]
-                                        .data['DisplayName']);
-                                    setState(() {
-                                      membersselected = true;
-                                    });
-                                  },
-                                  child: ListTile(
+                                  borderOnForeground: true,
+                                  elevation: 0,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (members.contains(snapshots
+                                          .data
+                                          .documents[index]
+                                          .data['DisplayName'])) {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                content: Text(
+                                                    'Member already added'),
+                                                actions: [
+                                                  RaisedButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text('Ok'),
+                                                  )
+                                                ],
+                                              );
+                                            });
+                                      } else {
+                                        members.add(snapshots
+                                            .data
+                                            .documents[index]
+                                            .data['DisplayName']);
+                                        setState(() {
+                                          membersselected = true;
+                                        });
+                                      }
+                                    },
+                                    child: ListTile(
                                       title: Text(snapshots
                                           .data
                                           .documents[index]
                                           .data['DisplayName']),
-                                      subtitle: Text(snapshots
-                                          .data.documents[index].data['Email']),
-                                      trailing: membersselected
-                                          ? Icon(Icons.check_circle)
-                                          : null),
-                                ),
-                              );
+                                    ),
+                                  ));
                             });
                       })
                   : Container(),
@@ -190,29 +213,22 @@ class _AddProjectPageState extends State<AddProjectPage> {
                 height: 20,
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
-                    width: 220,
-                    height: 40,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Enter Start Date',
-                        hintStyle: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                      width: 220,
+                      height: 40,
+                      child: startdate != null
+                          ? Text(startdate)
+                          : Text(
+                              'Selected Date',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            )),
                   SizedBox(
-                    width: 40,
+                    width: screenwidth * 0.01,
                   ),
                   IconButton(
                     icon: Icon(Icons.date_range),
@@ -242,29 +258,22 @@ class _AddProjectPageState extends State<AddProjectPage> {
                 height: 20,
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
-                    width: 220,
-                    height: 40,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Enter End Date',
-                        hintStyle: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                      width: 220,
+                      height: 40,
+                      child: enddate != null
+                          ? Text(enddate)
+                          : Text(
+                              'Selected Date',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            )),
                   SizedBox(
-                    width: 40,
+                    width: screenwidth * 0.01,
                   ),
                   IconButton(
                     icon: Icon(Icons.date_range),
@@ -288,14 +297,20 @@ class _AddProjectPageState extends State<AddProjectPage> {
                   setState(() {
                     showcontacts = false;
                   });
+                  setState(() {
+                    membersselected = false;
+                  });
                   await Database().addproject(
                       projectname,
                       projectdescription,
-                      enddate,
+                      formatedDate,
                       startdate,
                       defaultDate,
                       members,
                       user.displayName);
+                  members.clear();
+                  startdate = null;
+                  enddate = null;
                   Navigator.pushReplacementNamed(context, '/projecthome');
                 },
                 color: Colors.greenAccent,

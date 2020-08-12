@@ -3,16 +3,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:tasker/Utils/Constants.dart';
+import 'package:tasker/Pages/newganttchart.dart';
+import 'package:tasker/Utils/constants.dart';
 import 'package:tasker/Utils/drawer.dart';
 import 'package:tasker/Widgets/card.dart';
 import 'package:tasker/Widgets/taskcard.dart';
 import 'package:tasker/services/auth.dart';
+import 'package:tasker/services/database.dart';
 
 FirebaseMessaging fcm = FirebaseMessaging();
 String formatedDate = new DateFormat.yMMMEd().format(DateTime.now());
 DocumentSnapshot documentSnapshot;
 String devicetoken;
+bool pending;
+DateTime today = DateTime.now();
 
 class HomePage extends StatefulWidget {
   @override
@@ -78,6 +82,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var screenHeight = MediaQuery.of(context).size.height;
+    var screenwidth = MediaQuery.of(context).size.width;
     return StreamBuilder(
         stream: userstream(),
         builder: (context, snapshots) {
@@ -92,9 +97,11 @@ class _HomePageState extends State<HomePage> {
                       FlatButton(
                         onPressed: () {
                           Authentication().signOut();
+                          Navigator.of(context)
+                              .pushReplacementNamed('/initialroute');
                         },
                         child: Text('Logout'),
-                      )
+                      ),
                     ],
                   ),
                   drawer: CustomDrawer(
@@ -136,23 +143,30 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(height: screenHeight * 0.05),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              ContainerCard(
-                                onTap: () {
-                                  Navigator.pushNamed(context, "/TaskList");
-                                },
-                                child: Text("Personal"),
-                                color: Colors.red[200],
-                                height: 150,
+                              Expanded(
+                                child: ContainerCard(
+                                  onTap: () {
+                                    Navigator.pushNamed(context, "/TaskList");
+                                  },
+                                  child: Text("Personal"),
+                                  color: Colors.red[200],
+                                  height: 150,
+                                ),
                               ),
-                              ContainerCard(
-                                onTap: () {
-                                  Navigator.pushNamed(context, "/projecthome");
-                                },
-                                child: Text("Projects"),
-                                color: Colors.red[200],
-                                height: 150,
+                              SizedBox(
+                                width: screenwidth * 0.05,
+                              ),
+                              Expanded(
+                                child: ContainerCard(
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                        context, "/projecthome");
+                                  },
+                                  child: Text("Projects"),
+                                  color: Colors.blue[300],
+                                  height: 150,
+                                ),
                               ),
                             ],
                           ),
@@ -166,10 +180,11 @@ class _HomePageState extends State<HomePage> {
                               stream: todaystream(),
                               builder: (context, snapshot) {
                                 if (!snapshot.hasData) {
-                                  return Center(
-                                      child: CircularProgressIndicator());
+                                  return Container();
                                 }
+
                                 return ListView.builder(
+                                    physics: NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
                                     itemCount: snapshot.data.documents.length,
                                     itemBuilder: (context, index) {
@@ -204,6 +219,7 @@ class _HomePageState extends State<HomePage> {
         .collection('Tasks')
         .orderBy('Priority', descending: true)
         .where("DueDate", isEqualTo: formatedDate)
+        .where("Pending", isEqualTo: false)
         .snapshots();
   }
 

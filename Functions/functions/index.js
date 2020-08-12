@@ -25,10 +25,7 @@ exports.sendNotifications = functions.firestore.document('Task_Management/{uid}/
 		console.log('Document is' , deviceIdTokens.data());
 
 	var tokens = deviceIdTokens.data().Device_Token
-
-	/*for (var token of deviceIdTokens.docs) {
-		tokens.push(token.data().Device_Token);
-    }*/
+	
 	var payload = {
 		notification: {
 			title: 'TASK MANAGEMENT APP',

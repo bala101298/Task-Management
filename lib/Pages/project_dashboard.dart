@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tasker/Pages/add_project.dart';
+import 'package:tasker/Pages/project_workspace.dart';
 import 'package:tasker/Widgets/projecthomecard.dart';
+import 'package:tasker/Pages/newganttchart.dart';
 
 class ProjectHome extends StatefulWidget {
   @override
@@ -13,14 +15,15 @@ class _ProjectHomeState extends State<ProjectHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue[50],
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        centerTitle: true,
+        backgroundColor: Colors.blue[50],
         elevation: 0,
-        title: Center(
-          child: Text(
-            'PROJECTS DASHBOARD',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-          ),
+        iconTheme: IconThemeData(color: Colors.black),
+        title: Text(
+          'Dashboard',
+          style: TextStyle(color: Colors.black),
         ),
       ),
       body: Center(
@@ -35,22 +38,38 @@ class _ProjectHomeState extends State<ProjectHome> {
                 return ListView.builder(
                     itemCount: snapshots.data.documents.length,
                     itemBuilder: (context, index) {
-                      return Projecthomecard(
-                        projectname: snapshots
-                            .data.documents[index].data['Project Name'],
-                        members:
-                            snapshots.data.documents[index].data['Members'],
-                        createdon:
-                            snapshots.data.documents[index].data['Created on'],
-                        dateofsubmission: snapshots
-                            .data.documents[index].data['Date of Completion'],
+                      return GestureDetector(
+                        onTap: () async {
+                          final user =
+                              await FirebaseAuth.instance.currentUser();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ProjectPage(
+                                        projectname: snapshots
+                                            .data
+                                            .documents[index]
+                                            .data['Project Name'],
+                                        myname: user.displayName,
+                                      )));
+                        },
+                        child: Projecthomecard(
+                          projectname: snapshots
+                              .data.documents[index].data['Project Name'],
+                          members:
+                              snapshots.data.documents[index].data['Members'],
+                          createdon: snapshots
+                              .data.documents[index].data['Created on'],
+                          dateofsubmission: snapshots
+                              .data.documents[index].data['Date of Completion'],
+                        ),
                       );
                     });
               }),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.lightBlueAccent,
+        backgroundColor: Colors.blue[500],
         onPressed: () {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => AddProjectPage()));

@@ -7,6 +7,8 @@ import 'package:tasker/Pages/sign_in.dart';
 import 'package:tasker/Pages/taskList.dart';
 import 'package:tasker/Utils/Constants.dart';
 import 'package:tasker/services/auth.dart';
+import 'package:tasker/Pages/project_workspace.dart';
+import 'package:tasker/Pages/add_assigntask_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
         "/signin": (context) => SignInPage(),
         "/initialroute": (context) => LoginorHome(),
         "/projecthome": (context) => ProjectHome(),
+        "/projectworkspace": (context) => ProjectPage(),
       },
     );
   }

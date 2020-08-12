@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tasker/Pages/add_assigntask_page.dart';
 import 'package:tasker/Pages/add_project.dart';
 
 final _firestore = Firestore.instance;
@@ -23,7 +25,9 @@ class Database {
       bool taskCompleted,
       String timestamp,
       String selectedDate,
-      int priority}) async {
+      int priority,
+      DateTime createdDate,
+      bool pending}) async {
     return await _firestore
         .collection('Task_Management')
         .document(uid)
@@ -34,7 +38,9 @@ class Database {
       'CompletedStatus': taskCompleted,
       'timestamp': timestamp,
       'DueDate': selectedDate,
-      'Priority': priority
+      'Priority': priority,
+      'CreatedOn': createdDate,
+      'Pending': pending,
     }, merge: true);
   }
 
@@ -65,7 +71,7 @@ class Database {
         .delete();
   }
 
-  addFriend1(String id, frienddata, bool isMe) async {
+  addFriend1(String id, frienddata) async {
     return await _firestore
         .collection('User_Management')
         .document(uid)
@@ -110,5 +116,74 @@ class Database {
       'Created on': createddate,
       'Admin': adminName,
     });
+  }
+
+  updatemembers(List members, String projectname) async {
+    return await _firestore
+        .collection('Projects')
+        .document(projectname)
+        .updateData(
+      {'Members': members},
+    );
+  }
+
+  deleteproject(String projectname) async {
+    return await _firestore
+        .collection('Projects')
+        .document(projectname)
+        .delete();
+  }
+
+  addassignedTask(String projectname, String timestamp, List assigndedto,
+      DateTime duedate, String task, String taskdes) async {
+    DateTime startDate = DateTime.now();
+    final user = await FirebaseAuth.instance.currentUser();
+    return await _firestore
+        .collection('Projects')
+        .document(projectname)
+        .collection('Tasks')
+        .document(timestamp)
+        .setData({
+      'Assignor': user.displayName,
+      'Assigned To': assignedto,
+      'Task': task,
+      'Task Description': taskdes,
+      'Due Date': duedate,
+      'timestamp': timestamp,
+      'Start Date': startDate,
+    });
+  }
+
+  deleteassignedTask(String taskstamp, String projectname) async {
+    return await _firestore
+        .collection('Projects')
+        .document(projectname)
+        .collection('Tasks')
+        .document(taskstamp)
+        .delete();
+  }
+
+  addSubTask(String projectname, String taskstamp, String subtask,
+      String timestamp) async {
+    return await _firestore
+        .collection('Projects')
+        .document(projectname)
+        .collection('Tasks')
+        .document(taskstamp)
+        .collection('SubTasks')
+        .document(timestamp)
+        .setData({'SubTask': subtask, 'timestamp': timestamp});
+  }
+
+  deleteSubTask(
+      String projectname, String taskstamp, String subtaskstamp) async {
+    return await _firestore
+        .collection('Projects')
+        .document(projectname)
+        .collection('Tasks')
+        .document(taskstamp)
+        .collection('SubTasks')
+        .document(subtaskstamp)
+        .delete();
   }
 }

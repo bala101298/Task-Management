@@ -196,7 +196,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
           taskCompleted: false,
           timestamp: timestamp,
           priority: widget.priority != null ? widget.priority : 0,
-          selectedDate: formatedDate != null ? formatedDate : defaultDate);
+          selectedDate: formatedDate != null ? formatedDate : defaultDate,
+          pending: false,
+          createdDate: DateTime.now());
 
       Navigator.of(context).pop();
     } else if (input == null) {
@@ -206,7 +208,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
           taskCompleted: false,
           input: widget.newTask,
           priority: widget.priority != null ? widget.priority : 0,
-          selectedDate: formatedDate != null ? formatedDate : defaultDate);
+          selectedDate: formatedDate != null ? formatedDate : defaultDate,
+          pending: false);
       Navigator.of(context).pop();
     } else {
       Database(uid: user.uid).addTask(
@@ -214,7 +217,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
           taskCompleted: false,
           input: input,
           priority: widget.priority != null ? widget.priority : 0,
-          selectedDate: formatedDate != null ? formatedDate : defaultDate);
+          selectedDate: formatedDate != null ? formatedDate : defaultDate,
+          pending: false);
       Navigator.of(context).pop();
     }
   }

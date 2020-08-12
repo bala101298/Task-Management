@@ -82,29 +82,31 @@ class _TaskListPageState extends State<TaskListPage> {
         },
         child: Icon(Icons.add),
       ),
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Container(
-                height: 150,
-                child: CalendarStrip(
-                  onDateSelected: (date) {
-                    setState(() {
-                      selectedDate = date;
-                      formatedDate = DateFormat.yMMMEd().format(selectedDate);
-                    });
-                    print(formatedDate);
-                  },
-                  startDate: DateTime(2019),
-                  endDate: DateTime(2025),
-                  selectedDate: DateTime.now(),
-                  addSwipeGesture: true,
-                )),
-            Expanded(
-              child: taskList(),
-            )
-          ],
-        ),
+      body: Column(
+        children: <Widget>[
+          Container(
+              height: 150,
+              child: CalendarStrip(
+                onDateSelected: (date) {
+                  setState(() {
+                    selectedDate = date;
+                    formatedDate = DateFormat.yMMMEd().format(selectedDate);
+                  });
+                  print(formatedDate);
+                },
+                startDate: DateTime(2019),
+                endDate: DateTime(2025),
+                selectedDate: DateTime.now(),
+                addSwipeGesture: true,
+              )),
+          Expanded(
+            child: ListView(
+              children: <Widget>[
+                taskList(),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
@@ -129,22 +131,22 @@ taskList() {
                 style: kBody_2,
               ),
               SizedBox(height: 15),
-              Expanded(
-                child: ListView.builder(
-                    reverse: false,
-                    shrinkWrap: true,
-                    itemCount: snapshots.data.documents.length,
-                    itemBuilder: (context, index) {
-                      documentSnapshot = snapshots.data.documents[index];
-                      return TaskCard(
-                        task: documentSnapshot['task'],
-                        timestamp: documentSnapshot['timestamp'],
-                        taskCompleted: documentSnapshot['CompletedStatus'],
-                        dueDate: documentSnapshot['DueDate'],
-                        priority: documentSnapshot['Priority'],
-                      );
-                    }),
-              ),
+              ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  reverse: false,
+                  shrinkWrap: true,
+                  itemCount: snapshots.data.documents.length,
+                  itemBuilder: (context, index) {
+                    documentSnapshot = snapshots.data.documents[index];
+                    return TaskCard(
+                      task: documentSnapshot['task'],
+                      timestamp: documentSnapshot['timestamp'],
+                      taskCompleted: documentSnapshot['CompletedStatus'],
+                      dueDate: documentSnapshot['DueDate'],
+                      priority: documentSnapshot['Priority'],
+                    );
+                  }),
             ],
           ),
         );

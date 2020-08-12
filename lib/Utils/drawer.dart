@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:tasker/services/database.dart';
 
 QuerySnapshot usersnapshot;
-bool userselected = false;
 List users;
 int index;
 bool isMe = false;
@@ -72,14 +71,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 searchResult.documents[index].data['Email'],
                 searchResult.documents[index].data['UserId'],
                 searchResult.documents[index].data['PhotoUrl'],
-                index,
               );
             })
         : Container();
   }
 
-  userCard(String displayname, String email, String uid, String photoUrl,
-      int index) {
+  userCard(String displayname, String email, String uid, String photoUrl) {
     return Card(
       elevation: 1,
       child: Container(
@@ -96,7 +93,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 onPressed: () async {
                   final user = await FirebaseAuth.instance.currentUser();
                   setState(() {
-                    userselected = true;
                     Map<String, dynamic> requestdata = {
                       'DisplayName': user.displayName,
                       'Email': user.email,
@@ -241,10 +237,9 @@ class _FriendRequestsState extends State<FriendRequests> {
                                     .data.documents[index].data['UserId'],
                               };
                               Database(uid: widget.accountid).addFriend1(
-                                  snapshots
-                                      .data.documents[index].data['UserId'],
-                                  frienddata,
-                                  isMe);
+                                snapshots.data.documents[index].data['UserId'],
+                                frienddata,
+                              );
                             });
                             setState(() {
                               Map<String, dynamic> mydata = {
